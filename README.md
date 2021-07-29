@@ -65,6 +65,6 @@ For the GMDB-frequent test set, using a gallery of 3812 images of 257 syndromes:
 For the GMDB-frequent test set, using a gallery of 3428 images of 139 syndromes:
 | Model | Top-1 | Top-5 | Top-10 | Top-30 |
 |---|---|---|---|---|
-| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 8.47%<br>7.77% | 18.33%<br>14.86% | 23.19%<br>20.42% | 37.62%<br>36.12% |
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 8.47%&ensp;<br>7.77% | 18.33%<br>14.86% | 23.19%<br>20.42% | 37.62%<br>36.12% |
 | Enc-healthy<br>ours | 7.10%<br>6.75% | 14.36%<br>13.08% | 19.34%<br>17.15% | 30.77%<br>28.29% |
 
