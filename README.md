@@ -41,27 +41,30 @@ Additionally, you can save the face encodings with `--save_encodings` (default=T
 Using these encodings as input for <<INSERT SCRIPT TZUNG>> will allow you to obtain the results listed in the table.
 
 ## Results
-The table below hold the results from the original paper and the reproductions provided in this repo (Enc-healthy, Enc-GMDB, Enc-GMDB softmax).
-| Test set | Model | Top-1 | Top-5 | Top-10 | Top-30 |
-|:-|:-|:-|:-|:-|:-|
-| GMDB-frequent | Enc-GMDB (softmax) | 29.98% | 48.31% | 66.30% | 81.71% |
-| \*GMDB-frequent | Enc-GMDB (softmax) | 25.10% | 46.67% | 61.61% | 78.46% |
-| GMDB-frequent | Enc-GMDB | 21.86% | 40.09% | 53.59% | 74.28% |
-| \*GMDB-frequent | Enc-GMDB | 20.64% | 41.50% | 54.10% | 71.67% |
-| GMDB-frequent | Enc-healthy | 17.04% | 33.26% | 44.03% | 63.46% |
-| \*GMDB-frequent | Enc-healthy | 16.29% | 36.00% | 42.52% | 64.31% |
-|---|---|---|---|---|---|
-| GMDB-rare | Enc-GMDB | 18.51% | 37.50% | 47.36% | 71.93% |
-| \*GMDB-rare | Enc-GMDB | 15.78% | 34.68% | 46.19% | 69.24% |
-| GMDB-rare | Enc-healthy | 14.85% | 30.53% | 40.43% | 61.65% |
-| \*GMDB-rare | Enc-healthy | 12.79% | 29.06% | 40.19% | 61.50% |
-|---|---|---|---|---|---|
-| GMDB-frequent | Enc-GMDB | 20.98% | 38.25% | 51.05% | 71.37% |
-| \*GMDB-frequent | Enc-GMDB | 18.34% | 40.19% | 52.21% | 68.17% |
-| GMDB-frequent | Enc-healthy | 15.14% | 31.14% | 42.20% | 62.48% |
-| \*GMDB-frequent | Enc-healthy | 15.89% | 35.94% | 41.00% | 62.62% |
-|---|---|---|---|---|---|
-| GMDB-frequent | Enc-GMDB | 8.47% | 18.33% | 23.19% | 37.62% |
-| \*GMDB-frequent | Enc-GMDB | 7.77% | 14.86% | 20.42% | 36.12% |
-| GMDB-frequent | Enc-healthy | 7.10% | 14.36% | 19.34% | 30.77% |
-| \*GMDB-frequent | Enc-healthy | 6.75% | 13.08% | 17.15% | 28.29% |
+The tables below hold the results from the original paper and the reproductions provided in this repo (Enc-healthy, Enc-GMDB, Enc-GMDB softmax).
+  
+For the GMDB-frequent test set, using a gallery of 3428 images of 139 syndromes:
+| Model | Top-1 | Top-5 | Top-10 | Top-30 |
+|:-|:-|:-|:-|:-|
+| Enc-GMDB softmax<br>ours | 29.98%<br>25.10% | 48.31%<br>46.67% | 66.30%<br>61.61% | 81.71%<br>78.46% |
+| Enc-GMDB<br>ours | 21.86%<br>20.64% | 40.09%<br>41.50% | 53.59%<br>54.10% | 74.28%<br>71.67% |
+| Enc-healthy<br>ours| 17.04%<br>16.29% | 33.26%<br>36.00% | 44.03%<br>42.52% | 63.46%<br>64.31% |
+
+For the GMDB-rare test set, using a gallery of 369.2 images of 118 syndromes:
+Model | Top-1 | Top-5 | Top-10 | Top-30 |  
+|---|---|---|---|---|
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 18.51%<br>15.78% | 37.50%<br>34.68% | 47.36%<br>46.19% | 71.93%<br>69.24% |
+| Enc-healthy<br>ours | 14.85%<br>12.79% | 30.53%<br>29.06% | 40.43%<br>40.19% | 61.65%<br>61.50% |
+  
+For the GMDB-frequent test set, using a gallery of 3812 images of 257 syndromes:
+| Model | Top-1 | Top-5 | Top-10 | Top-30 |
+|---|---|---|---|---|
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 20.98%<br>18.34% | 38.25%<br>40.19% | 51.05%<br>52.21% | 71.37%<br>68.17% |
+| Enc-healthy<br>ours | 15.14%<br>15.89% | 31.14%<br>35.94% | 42.20%<br>41.00% | 62.48%<br>62.62% |
+  
+For the GMDB-frequent test set, using a gallery of 3428 images of 139 syndromes:
+| Model | Top-1 | Top-5 | Top-10 | Top-30 |
+|---|---|---|---|---|
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 8.47%<br>7.77% | 18.33%<br>14.86% | 23.19%<br>20.42% | 37.62%<br>36.12% |
+| Enc-healthy<br>ours | 7.10%<br>6.75% | 14.36%<br>13.08% | 19.34%<br>17.15% | 30.77%<br>28.29% |
+
