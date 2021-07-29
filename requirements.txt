@@ -1,0 +1,8 @@
+pytorch
+torchvision=0.10.0
+cudatoolkit=10.2
+opencv
+matplotlib
+pandas
+tensorboard
+scikit-learn
