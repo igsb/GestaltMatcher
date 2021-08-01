@@ -1,21 +1,41 @@
 # GestaltMatcher
 Unofficial implementation of GestaltMatcher as described in https://www.medrxiv.org/content/10.1101/2020.12.28.20248193v2.
 
+## Environment
+
+Please use python version 3.8, and the package listed in requirements.txt.
+
+```
+python3 -m venv env_gm
+source env_gm/Scripts/activate
+pip install -r requirements.txt
+```
+
+If you would like to train and evaluate with GPU, please remember to install cuda in your system.
+If you don't have GPU, please choose the CPU option in the following section.
+
 ## Data preparation
-The data should be stored in `../data/GestaltMatcherDB/`, it can be downloaded from www.gestalt-matcher.org on request.
+The data should be stored in `../data/GestaltMatcherDB/`, it can be downloaded from http://gestaltmatcher.org on request.
 Depending on which model you want to train, either `images_cropped/` for the normal augmentations or `images_rot/` for the extensive ones.
 
 In order to get the correct images, you have to run the `detect_pipe.py` from https://github.com/AlexanderHustinx/GestaltEngine-FaceCropper
-More details are in the README of that repo.
+More details are in the README of that repo. The face cropper requires the model "Resnet50_Final.pth".
+Please remember to download the model from the repository mentioned above.  
 
-To run the face cropper you can use the following command: 
-`python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_cropped/` 
-if you plan on using the extensive augmentation add `--result-type coords`, and use 
+To run the face cropper you can use the following command:
+
+```
+python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_cropped/
+``` 
+
+If you plan on using the extensive augmentation add `--result-type coords`, and use 
 `--save_dir ../data/GestaltMatcherDB/images_rot/`.
 
 ## Train models
 To reproduce our Gestalt Matcher model listed in the table by training from scratch, use:
-`python main.py --dataset gmdb_aug --seed 11 --session 2 --num_classes 139 --model-type DeepGestalt`
+```
+python main.py --dataset gmdb_aug --seed 11 --session 2 --num_classes 139 --model-type DeepGestalt
+```
 
 In order to run them, make sure to git-pull the `augmentations` from https://github.com/AlexanderHustinx/LandmarkAugmentations into the `lib`-directory
 
@@ -31,19 +51,38 @@ https://drive.google.com/file/d/1SeHEvBqTYeb2uR65UT9Di5DmP1DEKb4B
 
 The expected directory for the model weights is `./saved_models/`
 
-## Evaluate models
+Please note that the CASIA model in this repository is the same as Enc-healthy in the GestaltMatcher paper.
+
+## Encode photos and evaluate models
 With `python predict.py` you will evaluate all images in `--data_dir`. 
-By default it will use the recent DeepGestalt model with a batch size of 1 on the GPU ("saved_models/s2_gmdb_adam_DeepGestalt_e310_ReLU_BN_bs280.pt").
+By default, it will use the recent DeepGestalt model with a batch size of 1 on the GPU ("saved_models/s2_gmdb_adam_DeepGestalt_e310_ReLU_BN_bs280.pt").
 It will load all images in the `--data_dir`, which by default is set to `../data/GestaltMatcherDB/images_cropped`
 
 When retraining a model with different parameters, make sure to check if the `--num_classes` is the same.
-Additionally, you can save the face encodings with `--save_encodings` (default=True) to `encodings.csv`
+The classes for GMDB model is 139 which is the default setting. The classes for CASIA model is 10575.
+Additionally, you can save the face encodings with `--save_encodings` (default=True) to `encodings.csv`.
+If you choose FaceRecogNet, the output will be saved in `healthy_encoding.csv`.
+
+For the machine without GPU, please use `--no-cuda`.
+
+The following two commands will generate encodings.csv (Enc-GMDB) and healthy_encodings.csv (Enc-CASIA).
+
+```
+# Encode images with GMDB model and output in encodings.csv
+python predict.py --data_dir ../data/GestaltMatcherDB/images_cropped --no-cuda --model-type DeepGestalt --save_encodings
+
+# Encode images with CAISA model and output in healthy_encodings.csv
+python predict.py --data_dir ../data/GestaltMatcherDB/images_cropped --no-cuda --model-type FaceRecogNet --save_encodings --num_classes 10575
+```
+
+
 Using these encodings as input for <<INSERT SCRIPT TZUNG>> will allow you to obtain the results listed in the table.
 
 ## Results
-The tables below hold the results from the original paper and the reproductions provided in this repo (Enc-healthy, Enc-GMDB, Enc-GMDB softmax).
-  
+The tables below hold the results from the original paper, and the reproductions provided in this repo (Enc-healthy, Enc-GMDB, Enc-GMDB softmax).
+
 For the GMDB-frequent test set, using a gallery of 3428 images of 139 syndromes:
+
 | Model | Top-1 | Top-5 | Top-10 | Top-30 |
 |:-|:-|:-|:-|:-|
 | Enc-GMDB softmax<br>ours | 29.98%<br>25.10% | 48.31%<br>46.67% | 66.30%<br>61.61% | 81.71%<br>78.46% |

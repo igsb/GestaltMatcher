@@ -5,7 +5,7 @@ from lib.models.face_recog_net import FaceRecogNet
 
 
 class DeepGestalt(nn.Module):
-    def __init__(self, in_channels, num_classes, norm_type=nn.BatchNorm2d, act_type=nn.ReLU, freeze=False,
+    def __init__(self, in_channels, num_classes, device, norm_type=nn.BatchNorm2d, act_type=nn.ReLU, freeze=False,
                  pretrained=True, pretrained_path="saved_models/s1_casia_adam_FaceRecogNet_e50_ReLU_BN_bs100.pt"):
         super(DeepGestalt, self).__init__()
 
@@ -15,7 +15,7 @@ class DeepGestalt(nn.Module):
         # load pretrained weights
         if pretrained:
             print("Loading pretrained weights")
-            temp.load_state_dict(torch.load(pretrained_path))
+            temp.load_state_dict(torch.load(pretrained_path, map_location=device))
 
         # freeze model
         if freeze:
