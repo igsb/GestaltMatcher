@@ -162,15 +162,14 @@ def train(args, model, device, train_loader, optimizer, epochs=-1, val_loader=No
         ## gradually increase alpha each epoch - currently unused
         # args.alpha *= 1.065
 
-        # Save model
-        if args.save_model:
-            print(
-                f"Saving model in: {saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}"
-                f"_{args.act_type}_bs{args.batch_size}.pt")
-            torch.save(
-                model.state_dict(),
-                f"{saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}"
-                f"_{args.act_type}_bs{args.batch_size}.pt")
+        # Save model        
+        print(
+            f"Saving model in: {saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}"
+            f"_{args.act_type}_bs{args.batch_size}.pt")
+        torch.save(
+            model.state_dict(),
+            f"{saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}"
+            f"_{args.act_type}_bs{args.batch_size}.pt")
 
         # Plot the performance on the validation set
         avg_val_loss, t_acc, t5_acc = validate(model, device, val_loader, args)
@@ -338,7 +337,7 @@ def main():
         model = FaceRecogNet(in_channels=args.in_channels, num_classes=args.num_classes, act_type=act_type).to(device)
     elif args.model_type == 'DeepGestalt':
         model = DeepGestalt(in_channels=args.in_channels, num_classes=args.num_classes, act_type=act_type,
-                            freeze=False).to(device)
+                            freeze=False, device=device).to(device)
     else:
         print(f"No valid model type given! (got model_type: {args.model_type})")
         raise NotImplementedError
