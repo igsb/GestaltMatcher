@@ -17,8 +17,6 @@ from lib.models.deep_gestalt import DeepGestalt
 from lib.models.face_recog_net import FaceRecogNet
 
 saved_model_dir = "saved_models"
-encoding_file = "encodings.csv"
-#zero = torch.tensor(0.).cuda()
 
 
 # Simple preprocessing used for the input images
@@ -37,8 +35,6 @@ def parse_args():
                         help='input batch size for training (default: 1)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
-    parser.add_argument('--save_encodings', action='store_true', default=True,
-                        help='Whether to save to encodings to the file \'encodings.csv\'')
     parser.add_argument('--model-type', default='DeepGestalt', dest='model_type',
                         help='Model type to use. Default: DeepGestalt. (Options: \'FaceRecogNet\', \'DeepGestalt\')')
     parser.add_argument('--seed', type=int, default=11, metavar='S',
@@ -58,13 +54,14 @@ def predict(model, device, data, args):
     model.eval()
 
     f = None
-    if args.save_encodings:
-        if args.model_type == "FaceRecogNet":
-            f = open("healthy_encodings.csv", "w+")
-            f.write(f"img_name,arg_max,representations\n")
-        else:  # model_type == "DeepGestalt"
-            f = open("encodings.csv", "w+")
-            f.write(f"img_name;class_conf;representations\n")
+    if args.model_type == "FaceRecogNet":
+        f = open("healthy_encodings.csv", "w+")
+        f.write(f"img_name,arg_max,representations\n")
+    elif args.model_type == "DeepGestalt":
+        f = open("encodings.csv", "w+")
+        f.write(f"img_name;class_conf;representations\n")
+    else:
+        raise NotImplementedError
 
     tick = datetime.datetime.now()
     with torch.no_grad():
@@ -75,13 +72,13 @@ def predict(model, device, data, args):
 
             pred, pred_rep = model(img.unsqueeze(0))
 
-            if args.save_encodings:
-                # f.write(f"{img_path},{torch.argmax(pred)},{pred_rep.squeeze().tolist()}\n")
+            if args.model_type == "FaceRecogNet":
+                f.write(f"{img_path},{torch.argmax(pred)},{pred_rep.squeeze().tolist()}\n")
+            else:
                 f.write(f"{img_path};{pred.squeeze().tolist()};{pred_rep.squeeze().tolist()}\n")
 
-    if args.save_encodings:
-        f.flush()
-        f.close()
+    f.flush()
+    f.close()
 
     print(f"Predictions took {datetime.datetime.now() - tick}s")
     model.train()
@@ -117,14 +114,12 @@ def main():
     elif args.act_type == "LeakyReLU":
         act_type = nn.LeakyReLU
     else:
-        print(f"Invalid ACT_type given! (Got {args.act_type})")
-        act_type = nn.ReLU
+        raise NotImplementedError
 
     if args.model_type == 'FaceRecogNet':
         model = FaceRecogNet(in_channels=args.in_channels,
                              num_classes=args.num_classes,
                              act_type=act_type).to(device)
-        model_name = "FaceRecogNet"
 
         # load model:
         model.load_state_dict(
@@ -134,8 +129,8 @@ def main():
         model = DeepGestalt(in_channels=args.in_channels,
                             num_classes=args.num_classes,
                             device=device,
+                            pretrained=False, # No need to load them as we're loading full weights after..
                             act_type=act_type).to(device)
-        model_name = "DeepGestalt"
 
         # load model:
         model.load_state_dict(
@@ -143,6 +138,7 @@ def main():
                        map_location=device))
     else:
         print(f"No valid model type given! (got model_type: {args.model_type})")
+        raise NotImplementedError
 
     predict(model, device, data, args)
 

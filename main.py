@@ -30,6 +30,7 @@ def seed_worker(worker_id):
 
 
 # Verification loss as described in https://arxiv.org/abs/1411.7923
+# Currently unused.
 def verification_loss(representation_vectors, class_labels):
     # Calculate the distance matrix between all representation vectors in the representation_vectors :: dists
     dists = torch.cdist(representation_vectors, representation_vectors)
@@ -57,17 +58,16 @@ def parse_args():
                         help='input batch size for training (default: 4)')
 
     parser.add_argument('--epochs', type=int, default=500, metavar='N',
-                        help='number of epochs to train (default: 10)')
+                        help='number of epochs to train (default: 500)')
     parser.add_argument('--lr', type=float, default=5e-3, metavar='LR',  # lr=1e-3
-                        help='learning rate (default: 0.001)')
+                        help='learning rate (default: 0.005)')
 
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
 
     parser.add_argument('--seed', type=int, default=11, metavar='S',
                         help='random seed (default: 11)')
-    parser.add_argument('--save-model', action='store_true', default=True,
-                        help='For Saving the current Model')
+
     parser.add_argument('--log-interval', type=int, default=10000, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--val-interval', type=int, default=100000,
@@ -75,18 +75,19 @@ def parse_args():
 
     parser.add_argument('--session', type=int, dest='session',
                         help='Session used to distinguish model tests.')
-    parser.add_argument('--model-type', default='FaceRecogNet', dest='model_type',
+    parser.add_argument('--model-type', default='DeepGestalt', dest='model_type',
                         help='Model type to use. (Options: \'FaceRecogNet\', \'DeepGestalt\')')
 
     parser.add_argument('--act_type', default='ReLU', dest='act_type',
                         help='activation function to use in UNet. (Options: ReLU, PReLU, LeakyReLU, Swish)')
-    parser.add_argument('--in_channels', default=1, dest='in_channels')
-    parser.add_argument('--num_classes', default=10575, dest='num_classes', type=int)  # 139 for gmdb
-    parser.add_argument('--alpha', default=0.0, dest='alpha')
-    parser.add_argument('--dataset', default='casia', dest='dataset',
+    parser.add_argument('--in_channels', default=1, dest='in_channels',
+                        help='Number of color channels of the images used as input (default: 1)')
+    parser.add_argument('--num_classes', default=139, dest='num_classes', type=int)  # 139 for gmdb, 10575 for casia
+    # parser.add_argument('--alpha', default=0.0, dest='alpha') # verification loss unused ..
+    parser.add_argument('--dataset', default='gmdb', dest='dataset',
                         help='Which dataset to use. (Options: "casia", "gmdb", "gmdb_aug")')
 
-    parser.add_argument('--use_tensorboard', action='store_true', default=True,
+    parser.add_argument('--use_tensorboard', action='store_true', default=False,
                         help='Use tensorboard for logging')
 
     return parser.parse_args()
@@ -115,8 +116,8 @@ def train(args, model, device, train_loader, optimizer, epochs=-1, val_loader=No
             target = target.to(device, dtype=torch.int64).unsqueeze(1)
 
             pred, pred_rep = model(data)
-            loss = F.cross_entropy(pred, target.view(-1), weight=args.ce_weights) \
-                   + args.alpha * verification_loss(pred_rep, target)
+            loss = F.cross_entropy(pred, target.view(-1), weight=args.ce_weights) #\
+                   # + args.alpha * verification_loss(pred_rep, target) # - verification loss currently unused
             loss.backward()
 
             # Clipping gradients here, if we get exploding gradients we should revise...
@@ -158,18 +159,18 @@ def train(args, model, device, train_loader, optimizer, epochs=-1, val_loader=No
         if scheduler:
             scheduler.step()
 
-        # gradually increase alpha each epoch
-        args.alpha *= 1.065
+        ## gradually increase alpha each epoch - currently unused
+        # args.alpha *= 1.065
 
         # Save model
         if args.save_model:
             print(
                 f"Saving model in: {saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}"
-                f"_{args.act_type}_{args.norm}_bs{args.batch_size}.pt")
+                f"_{args.act_type}_bs{args.batch_size}.pt")
             torch.save(
                 model.state_dict(),
-                f"{saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}_{args.act_type}"
-                f"_{args.norm}_bs{args.batch_size}.pt")
+                f"{saved_model_dir}/s{args.session}_{args.dataset}_adam_{args.model_type}_e{epoch}"
+                f"_{args.act_type}_bs{args.batch_size}.pt")
 
         # Plot the performance on the validation set
         avg_val_loss, t_acc, t5_acc = validate(model, device, val_loader, args)
@@ -197,8 +198,9 @@ def validate(model, device, val_loader, args, out=False):
             target = target.to(device, dtype=torch.int64).unsqueeze(1)
 
             pred, pred_rep = model(data)
-            val_ce_loss += F.cross_entropy(pred, target.view(-1)).item() \
-                           + args.alpha * verification_loss(pred_rep, target).item()
+            val_ce_loss += F.cross_entropy(pred, target.view(-1), weight=args.ce_weights).item() # \
+                           # + args.alpha * verification_loss(pred_rep, target).item()
+                           # verification loss currently unused
 
             if out:
                 for i in range(args.val_bs):
@@ -227,6 +229,7 @@ def main():
     args = parse_args()
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
+    print(f"Using {'GPU.' if use_cuda else 'CPU, as was explicitly requested, or as GPU is not available.'}")
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     random.seed(args.seed)
@@ -248,14 +251,14 @@ def main():
     lookup_table = None
     if args.dataset == 'casia':
         dataset = CasiaWebFaceDataset(in_channels=args.in_channels,
-                                      imgs_dir="C:/Users/Alexander/Documents/data/CASIA-cropped-pruned/")
+                                      imgs_dir="../data/CASIA-cropped-pruned/")
     elif args.dataset == "gmdb":
         dataset_train = GestaltMatcherDataset(
             in_channels=args.in_channels, img_postfix='_crop_square',
-            target_file_path=f"C:/Users/Alexander/Documents/data/GestaltMatcherDB/gmdb_train_images_v3.3.csv")
+            target_file_path="../data/GestaltMatcherDB/gmdb_train_images_v1.csv")
         dataset_val = GestaltMatcherDataset(
             in_channels=args.in_channels, img_postfix='_crop_square', augment=False,
-            target_file_path=f"C:/Users/Alexander/Documents/data/GestaltMatcherDB/gmdb_val_images_v3.3.csv",
+            target_file_path="../data/GestaltMatcherDB/gmdb_val_images_v1.csv",
             lookup_table=dataset_train.get_lookup_table())
 
         dist = dataset_train.get_distribution()
@@ -268,12 +271,12 @@ def main():
     elif args.dataset == "gmdb_aug":
         dataset_train = GestaltMatcherDataset_augment(
             in_channels=args.in_channels, img_postfix='_rot',
-            imgs_dir="C:/Users/Alexander/Documents/data/GestaltMatcherDB/images_rot/",
-            target_file_path=f"C:/Users/Alexander/Documents/data/GestaltMatcherDB/gmdb_train_images_v3.3.csv")
+            imgs_dir="../data/GestaltMatcherDB/images_rot/",
+            target_file_path="../data/GestaltMatcherDB/gmdb_train_images_v1.csv")
         dataset_val = GestaltMatcherDataset_augment(
             in_channels=args.in_channels, img_postfix='_rot', augment=False,
-            imgs_dir="C:/Users/Alexander/Documents/data/GestaltMatcherDB/images_rot/",
-            target_file_path=f"C:/Users/Alexander/Documents/data/GestaltMatcherDB/gmdb_val_images_v3.3.csv",
+            imgs_dir="../data/GestaltMatcherDB/images_rot/",
+            target_file_path="../data/GestaltMatcherDB/gmdb_val_images_v1.csv",
             lookup_table=dataset_train.get_lookup_table())
 
         dist = dataset_train.get_distribution()
@@ -290,7 +293,7 @@ def main():
         f.flush()
         f.close()
 
-    # No split pre-defined, lets randomly make one ..
+    # No split pre-defined, lets randomly make one .. (used for e.g. CASIA)
     if dataset_train == None:
         # Use 10.25% of the dataset for validation
         n_val = int(len(dataset) * 0.1025)
@@ -303,17 +306,17 @@ def main():
             print(f"Training dataset distribution: {dist}")
         except(AttributeError):
             dist = None
-
+    
+    # Set the batch size of the validation set loader to as high as possible (max = args.batch_size)
+    args.val_bs = len(dataset_val) if len(dataset_val) < args.batch_size else args.batch_size
+    
     train_loader = torch.utils.data.DataLoader(dataset_train, **kwargs, shuffle=True, batch_size=args.batch_size,
                                                worker_init_fn=seed_worker)
     val_loader = torch.utils.data.DataLoader(dataset_val, pin_memory=True, num_workers=0, shuffle=False, drop_last=True,
                                              worker_init_fn=seed_worker,
-                                             batch_size=len(dataset_val) if len(
-                                                 dataset_val) < args.batch_size else args.batch_size)
+                                             batch_size=args.val_bs)
 
-    # Set the batch size of the validation set loader to as high as possible (max = args.batch_size)
-    args.val_bs = len(dataset_val) if len(dataset_val) < args.batch_size else args.batch_size
-
+    
     # Attempt to deal with data imbalance: inverse frequency divided by lowest frequency class (min: 0.5, max: 1.0)
     if dist is not None:
         args.ce_weights = (torch.tensor([(sum(dist) / freq) / (sum(dist) / min(dist)) for freq in dist]).float()
@@ -329,19 +332,17 @@ def main():
     elif args.act_type == "LeakyReLU":
         act_type = nn.LeakyReLU
     else:
-        print(f"Invalid ACT_type given! (Got {args.act_type})")
-        act_type = nn.ReLU
+        raise NotImplementedError
 
     if args.model_type == 'FaceRecogNet':
         model = FaceRecogNet(in_channels=args.in_channels, num_classes=args.num_classes, act_type=act_type).to(device)
-        model_name = "FaceRecogNet"
     elif args.model_type == 'DeepGestalt':
         model = DeepGestalt(in_channels=args.in_channels, num_classes=args.num_classes, act_type=act_type,
                             freeze=False).to(device)
-        model_name = "DeepGestalt"
     else:
         print(f"No valid model type given! (got model_type: {args.model_type})")
-
+        raise NotImplementedError
+    
     # Set log intervals
     args.log_interval = args.log_interval // args.batch_size
     args.val_interval = args.val_interval // args.batch_size
@@ -352,12 +353,13 @@ def main():
     #     {'params': model.classifier.parameters(), 'weight_decay': 5e-4}
     # ], lr=args.lr, weight_decay=0.)
     scheduler = None
-
+    
+    # Call explicit model weight initialization
+    model.init_layer_weights()
+    
     ## Continue training/testing:
-    # model.load_state_dict(
-    #   torch.load(f"saved_models/s3_eye_adam_EfficientdBAM_e10_ReLU_BN_bs4.pt",
-    #              map_location=device))
-
+    # model.load_state_dict(torch.load(f"saved_models/<saved weights>.pt", map_location=device))
+    
     train(args, model, device, train_loader, optimizer, val_loader=val_loader, scheduler=scheduler)
     validate(model, device, val_loader, args, out=True)
 

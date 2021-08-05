@@ -14,6 +14,22 @@ pip install -r requirements.txt
 If you would like to train and evaluate with GPU, please remember to install cuda in your system.
 If you don't have GPU, please choose the CPU option in the following section.
 
+Follow these instructions (https://developer.nvidia.com/cuda-downloads ) to properly install CUDA.
+Follow the necessary instructions (https://pytorch.org/get-started/locally/ ) to properly install PyTorch, you might still need additional dependencies (e.g. Numpy).
+Using the following command should work for most using the `conda` virtual env.
+```conda install pytorch torchvision cudatoolkit=10.2 -c pytorch```
+
+If any problems occur when installing the packages in `requirements.txt`, the most important packages are:
+```
+numpy
+pandas
+pytorch=1.9.0
+torchvision=0.10.0
+tensorboard
+opencv
+matplotlib
+```
+
 ## Data preparation
 The data should be stored in `../data/GestaltMatcherDB/`, it can be downloaded from http://gestaltmatcher.org on request.
 Depending on which model you want to train, either `images_cropped/` for the normal augmentations or `images_rot/` for the extensive ones.
@@ -22,14 +38,13 @@ In order to get the correct images, you have to run the `detect_pipe.py` from ht
 More details are in the README of that repo. The face cropper requires the model "Resnet50_Final.pth".
 Please remember to download the model from the repository mentioned above.  
 
-To run the face cropper you can use the following command:
+FaceCropper command to get all crops from data directory:
+```python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_cropped/ --result_type crop```
 
-```
-python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_cropped/
-``` 
+FaceCropper command to get all aligned faces and their coords from data directory:
+```python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_rot/ --result_type coords```
 
-If you plan on using the extensive augmentation add `--result-type coords`, and use 
-`--save_dir ../data/GestaltMatcherDB/images_rot/`.
+Do note that the crops are required to get the encodings with `predict.py`.
 
 ## Train models
 To reproduce our Gestalt Matcher model listed in the table by training from scratch, use:
@@ -37,10 +52,14 @@ To reproduce our Gestalt Matcher model listed in the table by training from scra
 python main.py --dataset gmdb_aug --seed 11 --session 2 --num_classes 139 --model-type DeepGestalt
 ```
 
-In order to run them, make sure to git-pull the `augmentations` from https://github.com/AlexanderHustinx/LandmarkAugmentations into the `lib`-directory
+In order to run them, the augementation in `./lib/augmentations` from https://github.com/AlexanderHustinx/LandmarkAugmentations have been used.
 
 You may choose whatever seed and session you find useful.
 `--seed 11` was used to obtain these results, others have not been tested.
+
+Using the argument `--use_tensorboard` allows you to track your models training and validation curves over time.
+
+Training a model without GPU has not been tested, and is not recommended.
 
 ## Pretrained models
 The most recent trained CASIA model weights can be downloaded here:
@@ -60,8 +79,7 @@ It will load all images in the `--data_dir`, which by default is set to `../data
 
 When retraining a model with different parameters, make sure to check if the `--num_classes` is the same.
 The classes for GMDB model is 139 which is the default setting. The classes for CASIA model is 10575.
-Additionally, you can save the face encodings with `--save_encodings` (default=True) to `encodings.csv`.
-If you choose FaceRecogNet, the output will be saved in `healthy_encoding.csv`.
+The face encodings with will be saved to `encodings.csv` for DeepGestalt, and to `healthy_encoding.csv` for FaceRecogNet.
 
 For the machine without GPU, please use `--no-cuda`.
 

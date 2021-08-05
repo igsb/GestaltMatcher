@@ -80,9 +80,6 @@ class FaceRecogNet(nn.Module):
         representation = x.view(x.size(0), -1)
 
         x = self.dropout(representation)
-
-        # Seems CrossEntropyLoss already combines SoftMax and NLL
-        #x = F.softmax(self.fc1(x), dim=-1)
         for mod in self.classifier:
             x = mod(x)
 

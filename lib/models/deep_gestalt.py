@@ -53,7 +53,6 @@ class DeepGestalt(nn.Module):
         representation = x.view(x.size(0), -1)
 
         x = self.dropout(representation)
-
         for mod in self.classifier:
             x = mod(x)
 
