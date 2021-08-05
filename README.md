@@ -38,15 +38,21 @@ In order to get the correct images, you have to run the `detect_pipe.py` from ht
 More details are in the README of that repo. The face cropper requires the model "Resnet50_Final.pth".
 Please remember to download the model from the repository mentioned above.  
 
-FaceCropper command to get all crops from data directory:
-```python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_cropped/ --result_type crop```
+FaceCropper command to get all crops from data directory (used with main.py when selecting 'gmdb' as dataset AND predict.py):
+```
+python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_cropped/ --result_type crop
+```
 
-FaceCropper command to get all aligned faces and their coords from data directory:
-```python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_rot/ --result_type coords```
+FaceCropper command to get all aligned faces and their coords from data directory (used with main.py when selecting 'gmdb_aug' as dataset):
+```
+python detect_pipe.py --images_dir ../data/GestaltMatcherDB/images/ --save_dir ../data/GestaltMatcherDB/images_rot/ --result_type coords
+```
 
 Do note that the crops are required to get the encodings with `predict.py`.
 
 ## Train models
+The training of GestaltMatcher can be run on either 'gmdb' which uses basic augmentations on pre-cropped images, or 'gmdb_aug' which uses more extensive augmentations on the images. The latter reduces the models tendancy to overfit due to it creating more variation in the training data.
+
 To reproduce our Gestalt Matcher model listed in the table by training from scratch, use:
 ```
 python main.py --dataset gmdb_aug --seed 11 --session 2 --num_classes 139 --model-type DeepGestalt
