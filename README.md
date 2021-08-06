@@ -1,5 +1,8 @@
 # GestaltMatcher
-Unofficial implementation of GestaltMatcher as described in https://www.medrxiv.org/content/10.1101/2020.12.28.20248193v2.
+IGSB implementation of GestaltMatcher as described in https://www.medrxiv.org/content/10.1101/2020.12.28.20248193v2 and
+DeepGestalt paper (https://www.nature.com/articles/s41591-018-0279-0). This repository is implemented by
+Institute for Genomic Statistics and Bioinformatics (IGSB) at the University of Bonn. In this repository, we included three
+critical parts, face cropper, model training, and evaluation. Due to the legal and copyright issue, the original photos for training and metadata are hosted in GestaltMatcher Database (https://gestaltmatcher.gene-talk.de/) with controlled access. Please get in touch with us to access the data.
 
 ## Environment
 
@@ -31,12 +34,24 @@ matplotlib
 ```
 
 ## Data preparation
-The data should be stored in `../data/GestaltMatcherDB/`, it can be downloaded from http://gestaltmatcher.org on request.
+The data should be stored in `../data/GestaltMatcherDB/`, it can be downloaded from http://gestaltmatcher.org on request. Please download the following two files from GMDB website:
+* GMDB metadata
+* GMDB_original_images_v1.tar.gz
+
+```
+cd ../data/GestaltMatcherDB
+tar -xzvf GMDB_original_images_v1.tar.gz
+mv GMDB_original_images_v1 images
+tar -xzvf GMDB_metadata.tar.gz
+mv GMDB_metadata/* .
+```
+
+## Crop photos
 Depending on which model you want to train, either `images_cropped/` for the normal augmentations or `images_rot/` for the extensive ones.
 
 In order to get the correct images, you have to run the `detect_pipe.py` from https://github.com/AlexanderHustinx/GestaltEngine-FaceCropper
 More details are in the README of that repo. The face cropper requires the model "Resnet50_Final.pth".
-Please remember to download the model from the repository mentioned above.  
+Please remember to download the model from the repository mentioned above. If you don't have GPU, please use `--cpu` to run on cpu mode.
 
 FaceCropper command to get all crops from data directory (used with main.py when selecting 'gmdb' as dataset AND predict.py):
 ```
@@ -93,41 +108,71 @@ The following two commands will generate encodings.csv (Enc-GMDB) and healthy_en
 
 ```
 # Encode images with GMDB model and output in encodings.csv
-python predict.py --data_dir ../data/GestaltMatcherDB/images_cropped --no-cuda --model-type DeepGestalt --save_encodings
+python predict.py --data_dir ../data/GestaltMatcherDB/images_cropped --no-cuda --model-type DeepGestalt
 
 # Encode images with CAISA model and output in healthy_encodings.csv
-python predict.py --data_dir ../data/GestaltMatcherDB/images_cropped --no-cuda --model-type FaceRecogNet --save_encodings --num_classes 10575
+python predict.py --data_dir ../data/GestaltMatcherDB/images_cropped --no-cuda --model-type FaceRecogNet --num_classes 10575
 ```
 
+### Evaluation
+Using these encodings as input for evaluation will allow you to obtain the results listed in the table.
 
-Using these encodings as input for <<INSERT SCRIPT TZUNG>> will allow you to obtain the results listed in the table.
+```
+python evaluation.py
 
-## Results
-The tables below hold the results from the original paper, and the reproductions provided in this repo (Enc-healthy, Enc-GMDB, Enc-GMDB softmax).
+----
+Load GMDB embeddings: 4306
+Load CASIA embeddings: 4306
+==================================================================
+Test set     |Model      |Gallery |Test  |Top-1|Top-5|Top-10|Top-30
+GMDB-frequent|Softmax    |-       |360   |25.13|47.23|59.79 |77.26 |
+GMDB-frequent|Enc-GMDB   |3438    |360   |19.87|39.78|53.37 |74.29 |
+GMDB-frequent|Enc-healthy|3438    |360   |16.86|35.52|44.18 |65.00 |
+==================================================================
+Test set     |Model      |Gallery |Test  |Top-1|Top-5|Top-10|Top-30
+GMDB-rare    |Enc-GMDB   |369.2   |138.8 |15.13|34.76|46.15 |68.51 |
+GMDB-rare    |Enc-healthy|369.2   |138.8 |12.18|29.03|40.36 |61.46 |
+==================================================================
+Test set     |Model      |Gallery |Test  |Top-1|Top-5|Top-10|Top-30
+GMDB-frequent|Enc-GMDB   |3812    |360   |18.97|38.76|51.05 |69.83 |
+GMDB-frequent|Enc-healthy|3812    |360   |15.18|34.72|42.53 |62.37 |
+==================================================================
+Test set     |Model      |Gallery |Test  |Top-1|Top-5|Top-10|Top-30
+GMDB-rare    |Enc-GMDB   |3807.2  |138.8 |8.28 |15.03|20.21 |34.51 |
+GMDB-rare    |Enc-healthy|3807.2  |138.8 |6.61 |13.33|16.60 |28.13 |
+==================================================================
 
-For the GMDB-frequent test set, using a gallery of 3428 images of 139 syndromes:
+```
 
-| Model | Top-1 | Top-5 | Top-10 | Top-30 |
-|:-|:-|:-|:-|:-|
-| Enc-GMDB softmax<br>ours | 29.98%<br>25.10% | 48.31%<br>46.67% | 66.30%<br>61.61% | 81.71%<br>78.46% |
-| Enc-GMDB<br>ours | 21.86%<br>20.64% | 40.09%<br>41.50% | 53.59%<br>54.10% | 74.28%<br>71.67% |
-| Enc-healthy<br>ours| 17.04%<br>16.29% | 33.26%<br>36.00% | 44.03%<br>42.52% | 63.46%<br>64.31% |
+## Compare results to original paper
+The tables below hold the results from the original paper, and the reproductions provided in this repo
+(Enc-healthy, Enc-GMDB, Enc-GMDB softmax).
 
-For the GMDB-rare test set, using a gallery of 369.2 images of 118 syndromes:
-Model | Top-1 | Top-5 | Top-10 | Top-30 |  
-|---|---|---|---|---|
-| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 18.51%<br>15.78% | 37.50%<br>34.68% | 47.36%<br>46.19% | 71.93%<br>69.24% |
-| Enc-healthy<br>ours | 14.85%<br>12.79% | 30.53%<br>29.06% | 40.43%<br>40.19% | 61.65%<br>61.50% |
+For the GMDB-frequent test set, using GMDB-frequent gallery of 3428 images of 139 syndromes:
+
+| Model | Top-1 | Top-5 | Top-10 | Top-30 |  
+|:-|:-|:-|:-|:-|  
+| Enc-GMDB softmax<br>ours | 29.98%<br>25.13% | 48.31%<br>47.23% | 66.30%<br>59.79% | 81.71%<br>77.26% |  
+| Enc-GMDB<br>ours | 21.86%<br>19.87% | 40.09%<br>39.78% | 53.59%<br>53.37% | 74.28%<br>74.29% |  
+| Enc-healthy<br>ours| 17.04%<br>16.86% | 33.26%<br>35.52% | 44.03%<br>44.18% | 63.46%<br>65.00% |  
   
-For the GMDB-frequent test set, using a gallery of 3812 images of 257 syndromes:
-| Model | Top-1 | Top-5 | Top-10 | Top-30 |
-|---|---|---|---|---|
-| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 20.98%<br>18.34% | 38.25%<br>40.19% | 51.05%<br>52.21% | 71.37%<br>68.17% |
-| Enc-healthy<br>ours | 15.14%<br>15.89% | 31.14%<br>35.94% | 42.20%<br>41.00% | 62.48%<br>62.62% |
-  
-For the GMDB-frequent test set, using a gallery of 3428 images of 139 syndromes:
-| Model | Top-1 | Top-5 | Top-10 | Top-30 |
-|---|---|---|---|---|
-| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 8.47%&ensp;<br>7.77% | 18.33%<br>14.86% | 23.19%<br>20.42% | 37.62%<br>36.12% |
-| Enc-healthy<br>ours | 7.10%<br>6.75% | 14.36%<br>13.08% | 19.34%<br>17.15% | 30.77%<br>28.29% |
+For the GMDB-rare test set, using GMDB-rare gallery of 369.2 images of 118 syndromes:  
+Model | Top-1 | Top-5 | Top-10 | Top-30 |    
+|---|---|---|---|---|  
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 18.51%<br>15.13% | 37.50%<br>34.76% | 47.36%<br>46.15% | 71.93%<br>68.51% |  
+| Enc-healthy<br>ours | 14.85%<br>12.18% | 30.53%<br>29.03% | 40.43%<br>40.36% | 61.65%<br>61.46% |  
+    
+For the GMDB-frequent test set, using GMDB-frequent gallery + GMDB-rare gallery:  
+| Model | Top-1 | Top-5 | Top-10 | Top-30 |  
+|---|---|---|---|---|  
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 20.98%<br>18.97% | 38.25%<br>38.76% | 51.05%<br>51.05% | 71.37%<br>69.83% |  
+| Enc-healthy<br>ours | 15.14%<br>15.18% | 31.14%<br>34.72% | 42.20%<br>42.53% | 62.48%<br>62.37% |  
+    
+For the GMDB-frequent test set, using GMDB-frequent gallery + GMDB-rare gallery:  
+| Model | Top-1 | Top-5 | Top-10 | Top-30 |  
+|---|---|---|---|---|  
+| Enc-GMDB&emsp;&emsp;&emsp;&ensp;&nbsp;<br>ours | 8.47%&ensp;<br>8.28% | 18.33%<br>15.03% | 23.19%<br>20.21% | 37.62%<br>34.51% |  
+| Enc-healthy<br>ours | 7.10%<br>6.61% | 14.36%<br>13.33% | 19.34%<br>16.60% | 30.77%<br>28.13% |
 
+## License
+[!License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)

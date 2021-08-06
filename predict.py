@@ -56,7 +56,7 @@ def predict(model, device, data, args):
     f = None
     if args.model_type == "FaceRecogNet":
         f = open("healthy_encodings.csv", "w+")
-        f.write(f"img_name,arg_max,representations\n")
+        f.write(f"img_name;arg_max;representations\n")
     elif args.model_type == "DeepGestalt":
         f = open("encodings.csv", "w+")
         f.write(f"img_name;class_conf;representations\n")
@@ -73,7 +73,7 @@ def predict(model, device, data, args):
             pred, pred_rep = model(img.unsqueeze(0))
 
             if args.model_type == "FaceRecogNet":
-                f.write(f"{img_path},{torch.argmax(pred)},{pred_rep.squeeze().tolist()}\n")
+                f.write(f"{img_path};{torch.argmax(pred)};{pred_rep.squeeze().tolist()}\n")
             else:
                 f.write(f"{img_path};{pred.squeeze().tolist()};{pred_rep.squeeze().tolist()}\n")
 
