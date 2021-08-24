@@ -30,6 +30,7 @@ torchvision=0.10.0
 tensorboard
 opencv
 matplotlib
+scikit-learn
 ```
 
 ## Data preparation
