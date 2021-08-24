@@ -131,3 +131,7 @@ dmypy.json
 # ignore photos
 **.jpg
 **.png
+
+# ignore the runs and saved_models dirs
+runs/
+saved_models/
