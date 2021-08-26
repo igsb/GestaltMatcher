@@ -25,7 +25,7 @@ class DeepGestalt(nn.Module):
         else:
             # Unfreezing all conv layer
             for idx, mod in enumerate(temp.base.children()):
-                if idx > -1:
+                if idx > 5:
                     if isinstance(mod, Conv_Norm_Act):
                         mod.conv.requires_grad = True
                 if isinstance(mod, nn.Conv2d):
