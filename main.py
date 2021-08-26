@@ -254,7 +254,7 @@ def validate(model, device, val_loader, args, out=False, secondary=False):
             # Used after training to save the representations to a file
             if out:
                 # save the representations to txt file
-                file = open(f"s{args.session}_{args.model_type}_{args.act_type}_bs{args.batch_size}.txt", "w+")
+                file = open(f"s{args.session}_{args.model_type}_bs{args.batch_size}.txt", "w+")
                 for i in range(args.val_bs):
                     if secondary:
                         print(f"{target_secondary[i].item()},{target_primary[i].item()},{pred[i].tolist()}")
