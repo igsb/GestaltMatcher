@@ -96,7 +96,7 @@ alpha=0.0: https://drive.google.com/file/d/17-di4PQQS62tIJt_rZpR79600GfOrTlm <br
 alpha=1.0: https://drive.google.com/file/d/1tVsnKw6cPxhpuDYAuNkClXeowymlcA8s 
 
 The validation curves, using a perfectly balanced validation set, for both models are shown below. <br />
-![Validation curves BlindDeepGestalt](https://github.com/igsb/GestaltMatcher/blob/eshg2021/validation_curves.jpg?raw=true) <br />
+![Validation curves BlindDeepGestalt](https://github.com/igsb/GestaltMatcher/blob/eshg2021/graphs/validation_curves.jpg?raw=true) <br />
 (Green) belongs to the BlindDeepGestalt with alpha=0.0, which shows that it is not unlearning the ethnicity, 
 while (Orange) belongs to BlindDeepGestalt with alpha=1.0, showing it successfully unlearned ethnicity.
 
