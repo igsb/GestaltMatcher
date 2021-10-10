@@ -46,6 +46,7 @@ def parse_args():
 
     parser.add_argument('--data_dir', default='../data/GestaltMatcherDB/images_cropped', dest='data_dir',
                         help='Path to the data directory containing the images to run the model on.')
+    parser.add_argument('--output_file', default='encodings.csv', dest='output_file', type=str)
 
     return parser.parse_args()
 
@@ -55,10 +56,12 @@ def predict(model, device, data, args):
 
     f = None
     if args.model_type == "FaceRecogNet":
-        f = open("healthy_encodings.csv", "w+")
+        filename = args.output_file
+        f = open("healthy_" + filename, "w+")
         f.write(f"img_name;arg_max;representations\n")
     elif args.model_type == "DeepGestalt":
-        f = open("encodings.csv", "w+")
+        filename = args.output_file
+        f = open(filename, "w+")
         f.write(f"img_name;class_conf;representations\n")
     else:
         raise NotImplementedError
