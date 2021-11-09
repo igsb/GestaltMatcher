@@ -113,6 +113,7 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+.idea/
 
 # Rope project settings
 .ropeproject
@@ -135,3 +136,5 @@ dmypy.json
 # ignore the runs and saved_models dirs
 runs/
 saved_models/
+
+**.csv

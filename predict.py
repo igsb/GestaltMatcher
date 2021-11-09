@@ -19,6 +19,15 @@ from lib.models.face_recog_net import FaceRecogNet
 saved_model_dir = "saved_models"
 
 
+def normalize(img, type='float'):
+    normalized = (img - img.min()) / (img.max() - img.min())
+    if type == 'int':
+        return (normalized * 255).int()
+
+    # Else: float
+    return normalized
+
+
 # Simple preprocessing used for the input images
 def preprocess(img):
     resize = transforms.Resize((100, 100))  # Default size is (100,100)
@@ -26,6 +35,7 @@ def preprocess(img):
 
     # desired number of channels is 1, so we convert to gray
     img = transforms.Grayscale(1)(img)
+    #img = transforms.RandomHorizontalFlip(p=1.0)(img)
     return transforms.ToTensor()(img)
 
 
@@ -40,7 +50,7 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=11, metavar='S',
                         help='random seed (default: 11)')
     parser.add_argument('--act_type', default='ReLU', dest='act_type',
-                        help='activation function to use in UNet. (Options: ReLU, PReLU, LeakyReLU, Swish)')
+                        help='activation function to use in model. (Options: ReLU, PReLU, Swish)')
     parser.add_argument('--in_channels', default=1, dest='in_channels')
     parser.add_argument('--num_classes', default=139, dest='num_classes', type=int)
 
@@ -106,6 +116,7 @@ def main():
         kwargs.update({'num_workers': 0, 'pin_memory': True})
 
     data = os.listdir(args.data_dir)
+    # data = [f"{root.split('/')[-1]}/{img_name}" for dir in data for root,_,img_names in os.walk(f"{args.data_dir}/{dir}") for img_name in img_names]
 
     if args.act_type == "ReLU":
         act_type = nn.ReLU
@@ -118,7 +129,8 @@ def main():
 
     if args.model_type == 'FaceRecogNet':
         model = FaceRecogNet(in_channels=args.in_channels,
-                             num_classes=args.num_classes,
+                             num_classes=10575,
+                             # num_classes=args.num_classes,
                              act_type=act_type).to(device)
 
         # load model:
@@ -129,12 +141,15 @@ def main():
         model = DeepGestalt(in_channels=args.in_channels,
                             num_classes=args.num_classes,
                             device=device,
-                            pretrained=False, # No need to load them as we're loading full weights after..
+                            pretrained=False,  # No need to load them as we're loading full weights after..
                             act_type=act_type).to(device)
 
         # load model:
         model.load_state_dict(
+            #torch.load(f"saved_models/s1_casia_adam_FaceRecogNet_e50_ReLU_BN_bs100.pt",
             torch.load(f"saved_models/s2_gmdb_aug_adam_DeepGestalt_e310_ReLU_BN_bs280.pt",
+            #torch.load(f"saved_models/encoderdecoder_test.pt",
+            # torch.load(f"saved_models/s3_gmdb_aug_adam_DeepGestalt_e150_ReLU_bs280.pt",
                        map_location=device))
     else:
         print(f"No valid model type given! (got model_type: {args.model_type})")
