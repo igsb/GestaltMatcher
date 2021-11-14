@@ -46,6 +46,7 @@ class gestalt_matcher_analysis(object):
         data = load_deep_gestalt_encodings(args.target_embs, synd_list)
 
         target_df = pd.read_csv(args.target_metadata, sep='\t')
+        labels = target_df.label.values
         target_image_ids = target_df.image_id.values
         target_embeddings = np.array([data['embeddings'][i] for i in target_image_ids])
         distance = calculate_distance(target_embeddings, target_embeddings)
@@ -78,10 +79,10 @@ class gestalt_matcher_analysis(object):
             ann_size = 16
             tick_size = 14
         cnames = df.columns.values
-        map_dict = {str(i): i for i in df.columns.values}
+        map_dict = {str(i): str(j) for i, j in zip(labels, df.columns.values)}
 
 
-        plot_clustering_heatmap(df, df, target_image_ids, target_image_ids, self.exp_name,
+        plot_clustering_heatmap(df, df, labels, target_image_ids, self.exp_name,
                                 self.output_dir, IMAGE_TYPE,
                                 ann_size, tick_size, rotation, threshold=1.65, match_rank=30,
                                 display_match_box=False,

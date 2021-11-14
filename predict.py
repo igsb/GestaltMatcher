@@ -47,28 +47,39 @@ def parse_args():
     parser.add_argument('--data_dir', default='../data/GestaltMatcherDB/images_cropped', dest='data_dir',
                         help='Path to the data directory containing the images to run the model on.')
     parser.add_argument('--output_file', default='encodings.csv', dest='output_file', type=str)
+    parser.add_argument('--input_crop_file', dest='input_crop_file',
+                        help='The input filename in the data directory.')
+    parser.add_argument('--model_file', dest='model_file',
+                        help='Path to the model file.')
 
     return parser.parse_args()
 
 
 def predict(model, device, data, args):
     model.eval()
-
-    f = None
-    if args.model_type == "FaceRecogNet":
-        filename = args.output_file
-        f = open("healthy_" + filename, "w+")
-        f.write(f"img_name;arg_max;representations\n")
-    elif args.model_type == "DeepGestalt":
-        filename = args.output_file
-        f = open(filename, "w+")
-        f.write(f"img_name;class_conf;representations\n")
-    else:
-        raise NotImplementedError
-
     tick = datetime.datetime.now()
     with torch.no_grad():
+        crop_path = None
+        if args.input_crop_file:
+            crop_path = args.input_crop_file
         for idx, img_path in enumerate(data):
+            if crop_path and img_path != crop_path:
+                continue
+
+            f = None
+            if args.model_type == "FaceRecogNet":
+                filename = args.output_file
+                f = open("healthy_" + filename, "w+")
+                f.write(f"img_name;arg_max;representations\n")
+            elif args.model_type == "DeepGestalt":
+                print(img_path)
+                filename = os.path.join(args.output_file, '{}.csv'.format(img_path.split('_')[0]))
+                print(filename)
+                f = open(filename, "w+")
+                f.write(f"img_name;class_conf;representations\n")
+            else:
+                raise NotImplementedError
+
             print(f"{img_path=}")
             img = Image.open(f"{args.data_dir}/{img_path}")
             img = preprocess(img).to(device, dtype=torch.float32)
@@ -80,8 +91,8 @@ def predict(model, device, data, args):
             else:
                 f.write(f"{img_path};{pred.squeeze().tolist()};{pred_rep.squeeze().tolist()}\n")
 
-    f.flush()
-    f.close()
+            f.flush()
+            f.close()
 
     print(f"Predictions took {datetime.datetime.now() - tick}s")
     model.train()
@@ -107,8 +118,10 @@ def main():
     kwargs = {}
     if use_cuda:
         kwargs.update({'num_workers': 0, 'pin_memory': True})
-
-    data = os.listdir(args.data_dir)
+    if os.path.isfile(args.data_dir):
+        data = [args.data_dir]
+    else:
+        data = os.listdir(args.data_dir)
 
     if args.act_type == "ReLU":
         act_type = nn.ReLU
@@ -125,8 +138,9 @@ def main():
                              act_type=act_type).to(device)
 
         # load model:
+        model_file = args.model_file if args.model_file else "saved_models/s1_casia_adam_FaceRecogNet_e50_ReLU_BN_bs100.pt"
         model.load_state_dict(
-            torch.load(f"saved_models/s1_casia_adam_FaceRecogNet_e50_ReLU_BN_bs100.pt",
+            torch.load(model_file,
                        map_location=device))
     elif args.model_type == 'DeepGestalt':
         model = DeepGestalt(in_channels=args.in_channels,
@@ -136,8 +150,9 @@ def main():
                             act_type=act_type).to(device)
 
         # load model:
+        model_file = args.model_file if args.model_file else "saved_models/s2_gmdb_aug_adam_DeepGestalt_e310_ReLU_BN_bs280.pt"
         model.load_state_dict(
-            torch.load(f"saved_models/s2_gmdb_aug_adam_DeepGestalt_e310_ReLU_BN_bs280.pt",
+            torch.load(model_file,
                        map_location=device))
     else:
         print(f"No valid model type given! (got model_type: {args.model_type})")

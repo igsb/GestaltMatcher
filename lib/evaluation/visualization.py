@@ -134,7 +134,7 @@ def plot_clustering_heatmap(dist_df, rank_df, cnames, family_labels, gene_name, 
     linkage = hc.linkage(sp.distance.squareform(dist_df), method=linkage_method)
     cg = sns.clustermap(df, figsize=fig_size, annot=display_number, fmt=fmt, center=center,
                         annot_kws={'size': ann_size}, cmap="Blues_r", vmax=vmax,
-                        cbar_kws={'extend': 'max'},
+                        cbar_kws={'extend': 'max'}, yticklabels=cnames, xticklabels=cnames,
                         row_cluster=row_cluster, col_cluster=row_cluster,
                         row_linkage=linkage, col_linkage=linkage)
     plt.suptitle(title, fontsize=title_size, y=1.02)
