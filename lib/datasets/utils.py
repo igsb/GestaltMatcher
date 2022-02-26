@@ -18,11 +18,12 @@ def load_deep_gestalt_encodings(filename='encodings.csv', synd_list=[]):
     image_softmax_ranks = {}
     embeddings = {}
     for index, row in df.iterrows():
-        image_ids.append(row[0].split('_')[0])
+        image_id = row[0].replace('_crop_square.jpg', '')
+        image_ids.append(image_id)
         embedding = row['representations'].split(', ')
         embedding[0] = float(embedding[0].replace('[', ''))
         embedding[-1] = float(embedding[-1].replace(']', ''))
-        embeddings[int(row[0].split('_')[0])] = [float(i) for i in embedding]
+        embeddings[image_id] = [float(i) for i in embedding]
 
         softmax = row['class_conf'].split(', ')
         softmax[0] = float(softmax[0].replace('[', ''))
@@ -30,7 +31,7 @@ def load_deep_gestalt_encodings(filename='encodings.csv', synd_list=[]):
         softmax = np.array([float(i) for i in softmax])
         order = softmax.argsort()
         synd_ranks = synd_list[order[::-1]]
-        image_softmax_ranks[int(row[0].split('_')[0])] = synd_ranks
+        image_softmax_ranks[image_id] = synd_ranks
 
     data = {'image_ids': np.array(image_ids),
             'embeddings': embeddings,
