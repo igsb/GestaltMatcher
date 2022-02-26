@@ -8,10 +8,10 @@ from lib.datasets.utils import load_synds_list, load_deep_gestalt_encodings
 
 def parse_args():
     parser = argparse.ArgumentParser(description='GestaltMatcher analysis:')
-    parser.add_argument('--target_metadata', type=str, required=True,
+    parser.add_argument('--target_metadata', type=str, required=False,
                         help='Input metadata file of target cohort.')
     parser.add_argument('--target_embs', type=str, required=True,
-                        help='Input embedding file of target cohort.')
+                        help='Output embedding file of target cohort.')
     parser.add_argument('--emb_path', type=str, required=True,
                         help='Input metadata file of target cohort.')
 
@@ -20,8 +20,11 @@ def parse_args():
 
 class merge_embeddings(object):
     def __init__(self, args):
-        target_df = pd.read_csv(args.target_metadata, sep='\t')
-        target_image_ids = target_df.image_id.values
+        if args.target_metadata:
+            target_df = pd.read_csv(args.target_metadata, sep='\t')
+            target_image_ids = target_df.image_id.values
+        else:
+            target_image_ids = ['.'.join(i.split('.')[:-1]) for i in os.listdir(args.emb_path)]
 
         # Create output dir
         output_dir = os.path.split(args.target_embs)[0]

@@ -32,7 +32,7 @@ def get_colors(num_clusters):
 def plot_tsne(embs, names, labels, output_path, syndrome_name_dict=None,
               show_metadata=False, synd_colors=None, title=None,
               gallery_dot_size=260, test_dot_size=300, file_type='svg',
-              marker_dict=None, perplexity=15):
+              marker_dict=None, perplexity=15, not_show=False):
     # Perform TSNE
     embeddeds = TSNE(n_components=2, random_state=0,
                      metric="cosine", perplexity=perplexity, square_distances=True).fit_transform(embs)
@@ -63,18 +63,19 @@ def plot_tsne(embs, names, labels, output_path, syndrome_name_dict=None,
             marker_type = marker_dict[syndrome_id]
         else:
             marker_type = 'o'
+        label = syndrome_name_dict[syndrome_id] if syndrome_name_dict != None else syndrome_id
         plt.scatter(embeddeds[labels == syndrome_id, 0],
                     embeddeds[labels == syndrome_id, 1],
                     c=[color],
                     marker=marker_type,
-                    label=syndrome_name_dict[syndrome_id], s=dot_size)
+                    label=label, s=dot_size)
 
     # Only add subject id and syndrome name in small syndrome
     if show_metadata:
         for x, y, syndrome_id, image_id in zip(embeddeds[:, 0], embeddeds[:, 1], labels, names):
             # only show testing metadata
             plt.annotate(image_id,
-                         (x + 1, y + 1),
+                         (x, y),
                          size=24)
 
     if title == None:
@@ -86,7 +87,8 @@ def plot_tsne(embs, names, labels, output_path, syndrome_name_dict=None,
 
     filename = os.path.join(output_path, title + ".{}".format(file_type))
     plt.savefig(filename, bbox_inches="tight")
-    plt.show()
+    if not not_show:
+        plt.show()
     plt.close()
 
 
@@ -139,7 +141,7 @@ def plot_clustering_heatmap(dist_df, rank_df, cnames, family_labels, gene_name, 
                         row_linkage=linkage, col_linkage=linkage)
     plt.suptitle(title, fontsize=title_size, y=1.02)
     ax = cg.ax_heatmap
-    ax.figure.axes[-1].tick_params(labelsize=18)
+    ax.figure.axes[-1].tick_params(labelsize=20)
 
     # plot rectangular
     labels = [i.get_text() for i in ax.get_ymajorticklabels()]
@@ -197,7 +199,7 @@ def plot_clustering_heatmap(dist_df, rank_df, cnames, family_labels, gene_name, 
                 )
                 _ax.axison = False
 
-                if map_dict:
+                if map_dict and label in map_dict:
                     label = map_dict[label]
                 if input_crops_path:
                     img = get_image_by_name(label, input_crops_path)
