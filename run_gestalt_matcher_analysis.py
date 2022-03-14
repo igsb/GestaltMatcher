@@ -52,6 +52,7 @@ class gestalt_matcher_analysis(object):
 
         target_df = pd.read_csv(args.target_metadata, sep='\t')
         labels = target_df.label.values
+        class_labels = target_df.class_label.values
         target_image_ids = target_df.image_id.values.astype(str)
         target_embeddings = np.array([data['embeddings'][i] for i in target_image_ids])
 
@@ -75,7 +76,7 @@ class gestalt_matcher_analysis(object):
         # plot tSNE figure
         #all_labels = np.array(['GoF'] * len(target_image_ids) + ['LoF'] * len(control_image_ids))
         #synd_dict = {'GoF': 'GoF', 'LoF': 'LoF'}
-        plot_tsne(target_embeddings, target_image_ids, labels, self.output_dir,
+        plot_tsne(target_embeddings, target_image_ids, class_labels, self.output_dir,
                   syndrome_name_dict=None, show_metadata=False, synd_colors=None,
                   title='{}_tSNE'.format(self.exp_name), gallery_dot_size=260, test_dot_size=300, file_type=self.output_image_type,
                   marker_dict=None, perplexity=15, not_show=True)
@@ -89,8 +90,8 @@ class gestalt_matcher_analysis(object):
         selected_control_image_ids = np.array(gmdb_image_ids)[rand_index]
 
         all_image_ids = np.append(target_image_ids, selected_control_image_ids)
-        all_labels = np.array(list(labels) + ['Control'] * len(selected_control_embeddings))
-
+        all_labels = np.array(list(class_labels) + ['Control'] * len(selected_control_embeddings))
+        
         plot_tsne(np.append(target_embeddings, selected_control_embeddings, axis=0), all_image_ids,
                   all_labels, self.output_dir,
                   syndrome_name_dict=None,
