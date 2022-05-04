@@ -216,3 +216,52 @@ def plot_clustering_heatmap(dist_df, rank_df, cnames, family_labels, gene_name, 
                                  '{}_validation_pairwise_{}{}.{}'.format(gene_name, source_type,
                                                                          file_suffix, file_format))
     plt.savefig(output_figure, format=file_format, bbox_inches='tight')
+    
+    
+def draw_distance_distribution(distances, identical, comparison_type,
+                               metric, logger, prefix='', output_path='.',
+                               subject_not_identicals=None, figsize=(36,24),
+                               title_size=36, tick_size=36,
+                               legend_size=44, label_size=36, alpha=0.5,
+                               same_color='b', not_same_color='r',
+                               bin_size=40):
+    """
+    Draw the distribution of comparison and distance
+
+    :param distances: pairwise distance matrix
+    :param identical: pairwise comparison
+    :param comparison_type: subject or syndrome
+    :param metric: euclidean or cosine distance
+    :param logger: logger
+    :param prefix: prefix for title and filename
+    :param output_path: output folder
+    :param title_size: fontsize of title
+    :param tick_size: fontsize of tick
+    :param legend_size: fontsize of legend
+    :param label_size: fontsize of label
+    """
+    # get the array of match/not-match distances
+    logger.info("Plotting distribution histogram")
+    same_dis = distances[identical == True]
+    not_same_dis = distances[identical == False]
+    plt.figure(figsize=figsize)
+    n, bins, patches = plt.hist(same_dis, bin_size, facecolor=same_color,
+                                alpha=alpha, label='same {}'.format(comparison_type))
+    n, bins, patches = plt.hist(not_same_dis, bin_size,
+                                facecolor=not_same_color, alpha=alpha,
+                                label='different {}'.format(comparison_type))
+    plt.legend(prop={'size': legend_size})
+    plt.title('Distribution of duplicated subjects', fontsize=title_size)
+    plt.xlabel('Distance', fontsize=label_size)
+    plt.ylabel('Count', fontsize=label_size)
+    plt.yscale('log')
+    plt.xticks(fontsize=tick_size)
+    plt.yticks(fontsize=tick_size)
+    plt.title('{}_{}_distance distribution_{}'.format(prefix, metric, comparison_type),
+              fontsize=title_size)
+    plt.grid(True)
+    figname = '{}_{}_distance_distribution_{}.png'.format(prefix, metric, comparison_type)
+    figname = os.path.join(output_path, figname)
+    plt.savefig(figname)
+    logger.info("Distribution figure is save: {}".format(figname))
+    plt.clf()
