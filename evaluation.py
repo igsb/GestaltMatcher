@@ -104,7 +104,7 @@ def main():
         synd_list = np.array([int(i) for i in synd_list])
 
     # Load GMDB embeddings
-    df = pd.read_csv('encodings.csv', sep=';')
+    df = pd.read_csv('gmdb_encodings_v1.0.1.csv', sep=';')
     image_ids = []
     image_softmax_ranks = {}
     embeddings = {}
@@ -126,7 +126,7 @@ def main():
     print('Load GMDB embeddings: {}'.format(len(embeddings)))
 
     # Laod casia embeddings
-    df = pd.read_csv('healthy_encodings.csv', sep=';')
+    df = pd.read_csv('gmdb_healthy_encodings_v1.0.1.csv', sep=';')
     image_ids = []
     healthy_embeddings = {}
     for index, row in df.iterrows():
@@ -138,12 +138,12 @@ def main():
 
     print('Load CASIA embeddings: {}'.format(len(embeddings)))
 
-    data_path = os.path.join('..', 'data', 'GestaltMatcherDB')
+    data_path = os.path.join('..', 'data', 'GestaltMatcherDB', 'v1.0.1', 'gmdb_metadata_v1.0.1')
 
     # Evaluate Frequent set with Frequent gallery
 
     # Load splits for softmax
-    df = pd.read_csv(os.path.join(data_path, 'gmdb_frequent_test_images_v1.csv'))
+    df = pd.read_csv(os.path.join(data_path, 'gmdb_frequent_test_images_v1.0.1.csv'))
     frequent_test_subject_ids = df.subject.values
     frequent_test_image_ids = df.image_id.values
     frequent_test_synd_ids = df.label.values
@@ -168,8 +168,8 @@ def main():
 
     # Evaluate GestaltMatcher
     cohort = Cohort(embeddings,
-                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.csv'),
-                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.csv'))
+                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.0.1.csv'),
+                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.0.1.csv'))
     cohort.calculate_distance()
     image_results = cohort.rank()
     gmdb_frequent_topk = cohort.topk
@@ -177,8 +177,8 @@ def main():
     gallery_images = 0
     test_images = 0
     cohort = Cohort(healthy_embeddings,
-                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.csv'),
-                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.csv'))
+                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.0.1.csv'),
+                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.0.1.csv'))
     cohort.calculate_distance()
     image_results = cohort.rank()
     gallery_images += len(set(cohort.gallery_image_ids))
@@ -214,8 +214,8 @@ def main():
     topks = []
     for i in range(10):
         cohort = Cohort(embeddings,
-                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.csv'),
-                        os.path.join(data_path, 'gmdb_rare_test_images_v1.csv'), i)
+                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.0.1.csv'),
+                        os.path.join(data_path, 'gmdb_rare_test_images_v1.0.1.csv'), i)
         cohort.calculate_distance()
         image_results = cohort.rank()
         topks.append(cohort.topk)
@@ -227,8 +227,8 @@ def main():
     test_images = 0
     for i in range(10):
         cohort = Cohort(healthy_embeddings,
-                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.csv'),
-                        os.path.join(data_path, 'gmdb_rare_test_images_v1.csv'), i)
+                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.0.1.csv'),
+                        os.path.join(data_path, 'gmdb_rare_test_images_v1.0.1.csv'), i)
         cohort.calculate_distance()
         image_results = cohort.rank()
         topks.append(cohort.topk)
@@ -250,10 +250,10 @@ def main():
 
     # Evaluate Frequent set with unified gallery (Frequent + Rare)
     cohort = Cohort(embeddings,
-                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.csv'),
-                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.csv'),
+                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.0.1.csv'),
+                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.0.1.csv'),
                     split=0,
-                    gallery_file_2= os.path.join(data_path, 'gmdb_rare_gallery_images_v1.csv'))
+                    gallery_file_2= os.path.join(data_path, 'gmdb_rare_gallery_images_v1.0.1.csv'))
     cohort.calculate_distance()
     image_results = cohort.rank()
     gmdb_frequent_topk = cohort.topk
@@ -261,10 +261,10 @@ def main():
     gallery_images = 0
     test_images = 0
     cohort = Cohort(healthy_embeddings,
-                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.csv'),
-                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.csv'),
+                    os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.0.1.csv'),
+                    os.path.join(data_path, 'gmdb_frequent_test_images_v1.0.1.csv'),
                     split=0,
-                    gallery_file_2=os.path.join(data_path, 'gmdb_rare_gallery_images_v1.csv'))
+                    gallery_file_2=os.path.join(data_path, 'gmdb_rare_gallery_images_v1.0.1.csv'))
     cohort.calculate_distance()
     image_results = cohort.rank()
     gallery_images += len(set(cohort.gallery_image_ids))
@@ -294,10 +294,10 @@ def main():
     topks = []
     for i in range(10):
         cohort = Cohort(embeddings,
-                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.csv'),
-                        os.path.join(data_path, 'gmdb_rare_test_images_v1.csv'),
+                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.0.1.csv'),
+                        os.path.join(data_path, 'gmdb_rare_test_images_v1.0.1.csv'),
                         split = i,
-                        gallery_file_2=os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.csv'))
+                        gallery_file_2=os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.0.1.csv'))
         cohort.calculate_distance()
         image_results = cohort.rank()
         topks.append(cohort.topk)
@@ -309,10 +309,10 @@ def main():
     test_images = 0
     for i in range(10):
         cohort = Cohort(healthy_embeddings,
-                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.csv'),
-                        os.path.join(data_path, 'gmdb_rare_test_images_v1.csv'),
+                        os.path.join(data_path, 'gmdb_rare_gallery_images_v1.0.1.csv'),
+                        os.path.join(data_path, 'gmdb_rare_test_images_v1.0.1.csv'),
                         split=i,
-                        gallery_file_2=os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.csv'))
+                        gallery_file_2=os.path.join(data_path, 'gmdb_frequent_gallery_images_v1.0.1.csv'))
         cohort.calculate_distance()
         image_results = cohort.rank()
         topks.append(cohort.topk)

@@ -68,8 +68,8 @@ def predict(model, device, data, args):
 
             f = None
             if args.model_type == "FaceRecogNet":
-                filename = args.output_file
-                f = open("healthy_" + filename, "w+")
+                filename = os.path.join(args.output_file, '{}.csv'.format(img_path.split('_')[0]))
+                f = open(filename, "w+")
                 f.write(f"img_name;arg_max;representations\n")
             elif args.model_type == "DeepGestalt":
                 print(img_path)

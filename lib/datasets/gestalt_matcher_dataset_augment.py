@@ -51,12 +51,13 @@ class GestaltMatcherDataset_augment(Dataset):
             self.target_file = target_file_path
 
         self.targets = self.handle_target_file()
-        self.bboxes = pd.read_csv("../data/GestaltMatcherDB/images_rot/face_coords.csv")
+        self.bboxes = pd.read_csv("../data/GestaltMatcherDB/v1.0.1/gmdb_images_rot_v1.0.1face_coords.csv")
 
         if lookup_table:
             self.lookup_table = lookup_table
         else:
             self.lookup_table = self.targets["label"].value_counts().index.tolist()
+            print(self.lookup_table)
             self.lookup_table.sort()
 
         self.augment = augment
@@ -127,7 +128,7 @@ class GestaltMatcherDataset_augment(Dataset):
         return list(self.targets.label.value_counts())
 
     def handle_target_file(self):
-        df = pd.read_csv(self.target_file, delimiter=',')
+        df = pd.read_csv(self.target_file, delimiter=',').astype(int)
 
         ## Keep only frontal face photos
         # df = df[df["image_type"] == "Frontal face"] # Already taken care of in *.csv

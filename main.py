@@ -254,10 +254,12 @@ def main():
     elif args.dataset == "gmdb":
         dataset_train = GestaltMatcherDataset(
             in_channels=args.in_channels, img_postfix='_crop_square',
-            target_file_path="../data/GestaltMatcherDB/gmdb_train_images_v1.csv")
+            imgs_dir="../data/gmdb_gan_crops/",
+            target_file_path="../data/GestaltMatcherDB/v1.0.1/gmdb_metadata_v1.0.1/gmdb_train_images_v1.0.1.csv")
         dataset_val = GestaltMatcherDataset(
             in_channels=args.in_channels, img_postfix='_crop_square', augment=False,
-            target_file_path="../data/GestaltMatcherDB/gmdb_val_images_v1.csv",
+            imgs_dir="../data/gmdb_gan_crops/",
+            target_file_path="../data/GestaltMatcherDB/v1.0.1/gmdb_metadata_v1.0.1/gmdb_val_images_v1.0.1.csv",
             lookup_table=dataset_train.get_lookup_table())
 
         dist = dataset_train.get_distribution()
@@ -270,12 +272,12 @@ def main():
     elif args.dataset == "gmdb_aug":
         dataset_train = GestaltMatcherDataset_augment(
             in_channels=args.in_channels, img_postfix='_rot',
-            imgs_dir="../data/GestaltMatcherDB/images_rot/",
-            target_file_path="../data/GestaltMatcherDB/gmdb_train_images_v1.csv")
+            imgs_dir="../data/GestaltMatcherDB/v1.0.1/gmdb_images_rot_v1.0.1/",
+            target_file_path="../data/GestaltMatcherDB/v1.0.1/gmdb_metadata_v1.0.1/gmdb_train_images_v1.0.1.csv")
         dataset_val = GestaltMatcherDataset_augment(
             in_channels=args.in_channels, img_postfix='_rot', augment=False,
-            imgs_dir="../data/GestaltMatcherDB/images_rot/",
-            target_file_path="../data/GestaltMatcherDB/gmdb_val_images_v1.csv",
+            imgs_dir="../data/GestaltMatcherDB/v1.0.1/gmdb_images_rot_v1.0.1/",
+            target_file_path="../data/GestaltMatcherDB/v1.0.1/gmdb_metadata_v1.0.1/gmdb_val_images_v1.0.1.csv",
             lookup_table=dataset_train.get_lookup_table())
 
         dist = dataset_train.get_distribution()

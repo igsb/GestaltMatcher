@@ -88,7 +88,7 @@ class GestaltMatcherDataset(Dataset):
         return list(self.targets.label.value_counts())
 
     def handle_target_file(self):
-        df = pd.read_csv(self.target_file, delimiter=',')
+        df = pd.read_csv(self.target_file, delimiter=',').astype(int)
 
         ## Keep only frontal face photos
         # df = df[df["image_type"] == "Frontal face"] # Already taken care of in *.csv
