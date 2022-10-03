@@ -81,6 +81,8 @@ class gestalt_matcher_analysis(object):
                   title='{}_tSNE'.format(self.exp_name), gallery_dot_size=260, test_dot_size=300, file_type=self.output_image_type,
                   marker_dict=None, perplexity=15, not_show=True)
 
+        output_df_path = os.path.join(self.output_dir, 'distance_matrix.tsv')
+        df.to_csv(output_df_path, sep='\t')
         # plot pairwise distance matrix
         self.plot_distance_matrix(df, labels, target_image_ids)
 
@@ -120,6 +122,9 @@ class gestalt_matcher_analysis(object):
         target_ranks = np.array(target_ranks)
         target_ranks_df = pd.DataFrame(target_ranks, columns=target_image_ids, index=target_image_ids).T
 
+
+        output_rank_df_path = os.path.join(self.output_dir, 'rank_matrix.tsv')
+        target_ranks_df.to_csv(output_rank_df_path, sep='\t')
         self.plot_rank_matrix(df, target_ranks_df, labels, target_image_ids)
 
     def plot_distance_matrix(self, df, labels, target_image_ids):
