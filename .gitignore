@@ -25,6 +25,12 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+pedia/
+PEDIA/
+**.png
+**.jpeg
+**.gif
+**.csv
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -134,3 +140,11 @@ dmypy.json
 # ignore the runs and saved_models dirs
 runs/
 saved_models/
+
+analysis_input/
+analysis_output/
+
+**.p
+**.svg
+**.tsv
+**.csv
