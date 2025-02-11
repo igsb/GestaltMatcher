@@ -1,0 +1,4 @@
+[submodule "GestaltMatcher-Arc"]
+	path = GestaltMatcher-Arc
+	url = https://github.com/igsb/GestaltMatcher-Arc.git
+	branch = service
