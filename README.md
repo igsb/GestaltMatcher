@@ -1,7 +1,16 @@
 # GestaltMatcher
-IGSB implementation of GestaltMatcher as described in https://www.medrxiv.org/content/10.1101/2020.12.28.20248193v2. This repository is implemented by
-Institute for Genomic Statistics and Bioinformatics (IGSB) at the University of Bonn. In this repository, we included three
-critical parts, face cropper, model training, and evaluation. Due to the legal and copyright issue, the original photos for training and metadata are hosted in GestaltMatcher Database (https://gestaltmatcher.gene-talk.de/) with controlled access. Please get in touch with us to access the data.
+GestaltMatcher is an AI-driven tool for deep facial phenotyping to aid in the diagnosis of ultra-rare genetic disorders. This repository serves as the main landing page for all tools related to GestaltMatcher, developed by the Institute for Genomic Statistics and Bioinformatics (IGSB) at the University of Bonn.
+
+
+## Publications
+
+GestaltMatcher was first introduced in Nature Genetics:
+
+* Hsieh, T.-C. et al. GestaltMatcher facilitates rare disease matching using facial phenotype descriptors. Nat. Genet. 54, 349–357 (2022). (Nature Genetics)
+
+Later, its performance was further enhanced in WACV 2023:
+
+* Hustinx, A. et al. Improving deep facial phenotyping for ultra-rare disorder verification using model ensembles. in 2023 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) (IEEE, 2023). doi:10.1109/wacv56688.2023.00499. (WACV 2023)
 
 ## Environment
 
