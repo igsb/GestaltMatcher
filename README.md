@@ -53,18 +53,15 @@ matplotlib
 scikit-learn
 ```
 
-## Data preparation
-The data should be stored in `../data/GestaltMatcherDB/`, it can be downloaded from http://gestaltmatcher.org on request. Please download the following two files from GMDB website:
-* GMDB metadata
-* GMDB_original_images_v1.tar.gz
+## Lumper and Splitter Analysis
 
-```
-cd ../data/GestaltMatcherDB
-tar -xzvf GMDB_original_images_v1.tar.gz
-mv GMDB_original_images_v1 images
-tar -xzvf GMDB_metadata.tar.gz
-mv GMDB_metadata/* .
-```
+This section contains various statistical and visualization analyses:
+
+* Statistics Analysis: Currently written in R, with plans to migrate to Python in the near future.
+
+* tSNE Plot: Provides a 2D visualization of image distributions using Python.
+
+* Pairwise Rank: Compares the rank of a given patient with controls (patients with other disorders) using Python.
 
 ## Contact
 Dr. Tzung-Chien Hsieh
