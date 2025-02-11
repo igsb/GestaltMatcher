@@ -18,7 +18,6 @@ GestaltMatcher consists of three core submodules:
 
 * GestaltEngine-FaceCropper (Face Cropper) – Extracts and aligns facial regions from images. (submodule)
 
-
 * GestaltMatcher-Arc (Model Training and Encoding) – Utilizes deep learning to analyze and encode facial features associated with genetic syndromes. (submodule)
 
 * Evaluation (This Repository) – Assesses the model's performance on benchmark datasets.
@@ -55,13 +54,21 @@ scikit-learn
 
 ## Lumper and Splitter Analysis
 
+The Lumper and Splitter Analysis is designed to assess the similarity between different cohorts. This method helps determine whether two given cohorts should be merged (lumped) or treated as separate entities (split). The analysis is performed by comparing the similarity between the two cohorts and their relationship with a control distribution.
+
+For example, this approach can be applied to evaluate the similarity between:
+
+* **Various genetic disorders with overlapping or distinct facial patterns**: For example, we proved that patients with NAA10 and NAA15 share similar facial phenotypes (https://www.nature.com/articles/s41431-023-01368-y). On the other hand, we can also demonstrate that one disorder appears distinct from another.
+
+* **Different mutation types or positions within a single gene**: For example, we can show that patients with C-terminal truncation exhibit distinct facial features compared to those with N-terminal truncation.
+
 This section contains various statistical and visualization analyses:
 
-* Statistics Analysis: Currently written in R, with plans to migrate to Python in the near future.
+* **Statistics Analysis**: Currently written in R, with plans to migrate to Python in the near future.
 
-* tSNE Plot: Provides a 2D visualization of image distributions using Python.
+* **tSNE Plot**: Provides a 2D visualization of image distributions using Python.
 
-* Pairwise Rank: Compares the rank of a given patient with controls (patients with other disorders) using Python.
+* **Pairwise Rank**: Compares the rank of a given patient with controls (patients with other disorders) using Python.
 
 ## Contact
 Dr. Tzung-Chien Hsieh
