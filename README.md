@@ -64,11 +64,32 @@ For example, this approach can be applied to evaluate the similarity between:
 
 This section contains various statistical and visualization analyses:
 
-* **Statistics Analysis**: Currently written in R, with plans to migrate to Python in the near future.
-
+* **Statistics Analysis**: Currently written in R, with plans to migrate to Python in the near future. To run the statistical analysis follow the next steps:
+  1. Calculate the distances between each pair of images from the GMDB while excluding images that have been included in the training of GestaltMatcher-Arc:
+     ```
+     Rscript 0_calculate_distances.R ./data/gmdb_embeddings_wo_pleiotropy_v1.0.3_15012023_remove_genes.p ./data/gmdb_syndromes_v1.0.3_wo_pleiotropy.tsv ./data/image_metadata_v1.0.3.tsv ./data/gmdb_frequent_gallery_images_v1.0.3.csv outcomes/distances
+     ```
+  3. Conduct roc-analysis via 5-fold cross-validation to derive threshold:
+     ```
+     Rscript 1_control_distr_roc.R ./data/gmdb_embeddings_wo_pleiotropy_v1.0.3_15012023_remove_genes.p ./data/gmdb_syndromes_v1.0.3_wo_pleiotropy.tsv ./data/image_metadata_v1.0.3.tsv ./data/gmdb_frequent_gallery_images_v1.0.3.csv outcomes/distances.RData outcomes/roc
+     ```
+  4. Validate derived threshold and subsampling approach on validation set:
+     ```
+     Rscript scripts/2_accuracy_splitting_lumping.R outcomes/roc.RData outcomes/distances.RData outcomes/lumping_splitting
+     ```
+  6. Compare two cohorts (lumping and splitting, e.g. MN1 C-terminal vs. N-terminal):
+      ```
+     Rscript 3_compare_two_cohorts.R ./data/MCTT_embeddings_wo_pleiotropy_v1.0.3_15012023.p ./data/MNTT_embeddings_wo_pleiotropy_v1.0.3_15012023.p MN1 C-terminal N-terminal outcomes/roc.RData outcomes/lumping_splitting.RData outcomes/MCTT_MNTT
+      ```
+  8. Compare one cohort to random controls (eg. MN1 N-terminal vs. random):
+     ```
+     Rscript 4_cohort_vs_random.R ./data/gmdb_embeddings_wo_pleiotropy_v1.0.3_15012023_remove_genes.p ./data/gmdb_syndromes_v1.0.3_wo_pleiotropy.tsv ./data/image_metadata_v1.0.3.tsv ./data/gmdb_frequent_gallery_images_v1.0.3.csv outcomes/distances.RData ./data/MNTT_embeddings_wo_pleiotropy_v1.0.3_15012023.p N-terminal outcomes/N_vs_random
+     ```
+     
 * **tSNE Plot**: Provides a 2D visualization of image distributions using Python.
 
 * **Pairwise Rank**: Compares the rank of a given patient with controls (patients with other disorders) using Python.
+
 
 ## Contact
 Dr. Tzung-Chien Hsieh
