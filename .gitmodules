@@ -2,3 +2,6 @@
 	path = GestaltMatcher-Arc
 	url = https://github.com/igsb/GestaltMatcher-Arc.git
 	branch = service
+[submodule "GestaltEngine-FaceCropper"]
+	path = GestaltEngine-FaceCropper
+	url = https://github.com/AlexanderHustinx/GestaltEngine-FaceCropper.git
