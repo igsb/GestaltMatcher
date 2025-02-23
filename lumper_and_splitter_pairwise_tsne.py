@@ -7,14 +7,11 @@ import seaborn as sns
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import scipy.spatial as sp, scipy.cluster.hierarchy as hc
-from matplotlib.patches import Rectangle
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from sklearn.manifold import TSNE
 from matplotlib.patches import Rectangle
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from lib.evaluation.distance import calculate_distance
-from lib.datasets.utils import load_synds_list, load_deep_gestalt_encodings
 from lib.evaluation.visualization import plot_clustering_heatmap
 from lib.evaluation.visualization import plot_tsne
 
@@ -239,38 +236,39 @@ def plot_tsne(dists, names, labels, output_path, syndrome_name_dict=None,
 def main():
 
     gmdb_synd_to_dict = {}
-    df = pd.read_csv('../data/GestaltMatcherDB/v1.0.3\gmdb_metadata\gmdb_frequent_gallery_images_v1.0.3.csv', sep=',')
+    gmdb_metadata_dir = os.path.join("data", "GestaltMatcherDB", "v1.0.3", "gmdb_metadata")
+    df = pd.read_csv(os.path.join(gmdb_metadata_dir, 'gmdb_frequent_gallery_images_v1.0.3.csv'), sep=',')
     image_ids = df.image_id.values
     for _, row in df.iterrows():
         image_id = row['image_id']
         gmdb_synd_to_dict[image_id] = row['label']
-    df = pd.read_csv('../data/GestaltMatcherDB/v1.0.3\gmdb_metadata\gmdb_frequent_test_images_v1.0.3.csv', sep=',')
+    df = pd.read_csv(os.path.join(gmdb_metadata_dir, 'gmdb_frequent_test_images_v1.0.3.csv'), sep=',')
     image_ids = np.append(image_ids, df.image_id.values)
     for _, row in df.iterrows():
         image_id = row['image_id']
         gmdb_synd_to_dict[image_id] = row['label']
-    df = pd.read_csv('../data/GestaltMatcherDB/v1.0.3\gmdb_metadata\gmdb_rare_gallery_images_v1.0.3.csv', sep=',')
+    df = pd.read_csv(os.path.join(gmdb_metadata_dir, 'gmdb_rare_gallery_images_v1.0.3.csv'), sep=',')
     image_ids = np.append(image_ids, df[df.split==0].image_id.values)
     for _, row in df.iterrows():
         image_id = row['image_id']
         gmdb_synd_to_dict[image_id] = row['label']
-    df = pd.read_csv('../data/GestaltMatcherDB/v1.0.3\gmdb_metadata\gmdb_rare_test_images_v1.0.3.csv', sep=',')
+    df = pd.read_csv(os.path.join(gmdb_metadata_dir, 'gmdb_rare_test_images_v1.0.3.csv'), sep=',')
     for _, row in df.iterrows():
         image_id = row['image_id']
         gmdb_synd_to_dict[image_id] = row['label']
     gmdb_release_image_ids = np.append(image_ids, df[df.split==0].image_id.values)
 
-
-    mctt_df = pd.read_csv("../data/mctt/IDs_version_4_for_TC.txt", sep='\t')
+    mctt_dir = os.path.join('data', 'mctt')
+    mctt_df = pd.read_csv(os.path.join(mctt_dir, "IDs_version_4_for_TC.txt"), sep='\t')
     image_ids = []
     for _, row in mctt_df.iterrows():
         if row['ID v4'] in ['1260C09.2', 'M1273C15']:
             continue
         image_ids.append(row['ID v4'].replace('.', '-'))
 
-
+    encoding_dir = 'data'
     # Get all predictions
-    representation_df = pd.read_csv("../GestaltMatcher-Arc/encodings_ensemble_v1.0.3_wo_pleiotropy_15012023.csv", delimiter=";")
+    representation_df = pd.read_csv(os.path.join(encoding_dir, "encodings_ensemble_v1.0.3_wo_pleiotropy_15012023_all_images_16012023_merged.csv"), delimiter=";")
     representation_df = representation_df.groupby('img_name').agg(lambda x: list(x)).reset_index()
 
     representation_df.representations = representation_df.representations.apply(lambda x: [json.loads(i) for i in x])
@@ -278,7 +276,7 @@ def main():
     representation_df.img_name = representation_df.img_name.apply(lambda x: int(x.split('_')[0]))
 
     # Get target predictions
-    target_representation_df = pd.read_csv("../GestaltMatcher-Arc/mctt_encodings_ensemble_v1.0.3_wo_pleiotropy_15012023.csv", delimiter=";")
+    target_representation_df = pd.read_csv(os.path.join(encoding_dir, "mctt_encodings_ensemble_v1.0.3_wo_pleiotropy_15012023.csv"), delimiter=";")
     target_representation_df = target_representation_df.groupby('img_name').agg(lambda x: list(x)).reset_index()
 
     target_representation_df.representations = target_representation_df.representations.apply(lambda x: [json.loads(i) for i in x])
@@ -349,7 +347,7 @@ def main():
     sort_all_image_ids = np.array(sort_target_image_ids)
 
 
-    OUTPUT_DIR = os.path.join('analysis_output', 'MCTT-output')
+    OUTPUT_DIR = os.path.join('analysis_output', 'MCTT-output-revision')
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
@@ -385,7 +383,7 @@ def main():
                             ann_size, tick_size, rotation, threshold=0.748, match_rank=300 ,#43,
                             display_match_box=False,
                             source_type='rank', map_dict=subject_to_image,
-                            input_crops_path='../data/mctt/crops/',
+                            input_crops_path='./data/mctt/crops/',
                             linkage_method=type_cluster,
                             row_cluster=False, col_cluster=False, file_suffix='_{}'.format(type_cluster),
                             default_x_offset=1.05, default_y_offset=-0.06)

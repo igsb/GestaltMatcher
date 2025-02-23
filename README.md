@@ -62,6 +62,8 @@ For example, this approach can be applied to evaluate the similarity between:
 
 * **Different mutation types or positions within a single gene**: For example, we can show that patients with C-terminal truncation exhibit distinct facial features compared to those with N-terminal truncation.
 
+To reporduce the results in our paper, please contact us to get the corresponding metadata and encoding and store them in "./data" folder.
+
 This section contains various statistical and visualization analyses:
 
 * **Statistics Analysis**: Currently written in R, with plans to migrate to Python in the near future. To run the statistical analysis follow the next steps:
@@ -87,9 +89,16 @@ This section contains various statistical and visualization analyses:
      ```
      
 * **tSNE Plot**: Provides a 2D visualization of image distributions using Python.
+     ```
+     python lumping_splitting_tsne.py
+     ```
+     The results will be shown in analysis_out/MCTT-output-revision.
 
 * **Pairwise Rank**: Compares the rank of a given patient with controls (patients with other disorders) using Python.
-
+     ```
+     python lumping_splitting_tsne.py
+     ```
+     The results will be shown in analysis_out/MCTT-output-revision.
 
 ## Contact
 Dr. Tzung-Chien Hsieh
